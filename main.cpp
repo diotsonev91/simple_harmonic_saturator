@@ -8,7 +8,7 @@
 
 int main(int argc, char* argv[]) {
     if (argc < 3) {
-        std::cerr << "Usage: ./saturator input.wav output.wav [drive] [outputGain] [cutoff frequency]\n";
+        std::cerr << "Usage: ./saturator input.wav output.wav [drive] [outputGain] [cutoff frequency] [mix]\n";
         return 1;
     }
 
@@ -39,6 +39,7 @@ int main(int argc, char* argv[]) {
     float drive = 5.0f;
     float outputGain = 0.7f;
     float cutoffHz = 18000;
+    float mix = 1.0f;
 
     if (argc >= 4)
         drive = std::stof(argv[3]);
@@ -49,10 +50,14 @@ int main(int argc, char* argv[]) {
     if (argc >= 6)
         cutoffHz = std::stof(argv[5]);
 
+    if (argc >= 7)
+        mix = std::stof(argv[6]);
+
 
     std::cout << "Drive      : " << drive << "\n";
     std::cout << "OutputGain : " << outputGain << "\n";
     std::cout << "CutoffHz     : " << cutoffHz << "\n";  
+    std::cout << "mix     : " << mix<< "\n";     
 
     OversampledSaturatorProcessor processor;
 
@@ -60,6 +65,7 @@ int main(int argc, char* argv[]) {
     processor.setDrive(drive);
     processor.setOutputGain(outputGain);
     processor.setCutoffHz(cutoffHz);
+    processor.setMix(mix);
 
     std::vector<int16_t> processed = processor.process(samples);
 

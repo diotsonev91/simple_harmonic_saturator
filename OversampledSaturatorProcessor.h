@@ -36,6 +36,10 @@ public:
         fir = makeLowpassFIR(taps, cutoff);
     }
 
+    void setMix(float newMix) {
+        mix = std::clamp(newMix, 0.0f, 1.0f);
+    }
+
     std::vector<int16_t> process(const std::vector<int16_t>& samples) {
         int numSamples = samples.size();
         int frames = numSamples / channels;
@@ -64,7 +68,24 @@ public:
             auto filtered = applyFIR(reconstructed, fir);
 
             for (int i = 0; i < frames; ++i) {
-                float y = filtered[i * OS];
+
+                if (mix <= 0.0f) {
+                    float y = mono[i] * outputGain;
+                    y = std::clamp(y, -1.0f, 1.0f);
+
+                    processed[i * channels + ch] =
+                        static_cast<int16_t>(y * 32767.0f);
+
+                    continue;
+                }
+
+                float dry = mono[i];
+                float wet = filtered[i * OS];
+
+                float wetAmount = mix * mix;
+                float dryAmount = 1.0f - wetAmount;
+
+                float y = dry * dryAmount + wet * wetAmount;
 
                 y *= outputGain;
                 y = std::clamp(y, -1.0f, 1.0f);
@@ -85,6 +106,7 @@ private:
     int sampleRate = 44100;
     int channels = 1;
     float outputGain = 0.7f;
+    float mix = 1.0f;
 
     HarmonicSaturator saturator;
     std::vector<float> fir;

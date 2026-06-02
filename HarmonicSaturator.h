@@ -14,10 +14,6 @@ public:
         drive = std::max(0.0f, newDrive);
     }
 
-    void setOutputGain(float newGain) {
-        outputGain = newGain;
-    }
-
     float processSample(float x) const {
         return std::tanh(drive * x);
     }
@@ -27,5 +23,5 @@ private:
     int channels = 1;
 
     float drive = 5.0f;
-    float outputGain = 0.7f;
+
 };
